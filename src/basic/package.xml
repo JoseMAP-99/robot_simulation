@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>ghost_v60</name>
+  <name>basic</name>
   <version>0.0.0</version>
-  <description>Ghost V60 Test</description>
-  <maintainer email="ja@xrf.ai">pepito</maintainer>
-  <license>Apache License 2.0</license>
+  <description>Package basic</description>
+  <maintainer email="ja@xrf.ai">xrf</maintainer>
+  <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
