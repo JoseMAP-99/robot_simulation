@@ -64,7 +64,7 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         output='screen',
-        arguments=[{'-d', rviz_conf}]
+        arguments=['-d', rviz_conf]
     )
 
     gui = DeclareLaunchArgument(name='gui', default_value='True', description='Flag to enable joint_state_publisher_gui')
