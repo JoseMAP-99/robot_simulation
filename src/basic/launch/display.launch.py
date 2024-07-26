@@ -1,9 +1,10 @@
 import os
 from launch import LaunchDescription
 
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import LaunchConfiguration
 
 urdf_file_name = 'model.urdf'
 package_name = 'basic'
@@ -29,15 +30,17 @@ def loadSimulationConfiguration():
 
 def generate_launch_description():
 
+    use_sim_time = LaunchConfiguration('use_sim_time') 
+    robot_name = 'physics'
+
     urdf, robot = loadModel()
 
     robot = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        output='screen',
-        parameters=[{'robot_description': robot}],
-        arguments=[urdf]
+        parameters=[{'robot_description': robot, 'use_sim_time': use_sim_time}],
+        arguments=[urdf],
     )
 
     rviz_configuration = loadSimulationConfiguration()
@@ -47,13 +50,36 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         arguments=['-d', rviz_configuration],
+        parameters=[{'use_sim_time': use_sim_time}],
         output='screen',
     )
 
-    gui = DeclareLaunchArgument(name='gui', default_value='True', description='Flag to enable joint_state_publisher_gui')
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        name='use_sim_time',
+        default_value='true',
+        description='Use simulation (Gazebo) clock if true'
+    )
+
+    spawn = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=["-topic", "/robot_description", 
+                    "-entity", robot_name,
+                    "-x", '0.0',
+                    "-y", '0.0',
+                    "-z", '-5.0',
+                    "-Y", '1.5']
+    )
+
+    gazebo = ExecuteProcess(
+        cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', 
+        '-s', 'libgazebo_ros_init.so'], output='screen',
+        )
 
     return LaunchDescription([
-        gui,
-        robot,
+        declare_use_sim_time_cmd,
         rviz2,
+        spawn,
+        robot,
+        gazebo,
     ])
