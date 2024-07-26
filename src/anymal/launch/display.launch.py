@@ -7,14 +7,15 @@ from ament_index_python.packages import get_package_share_directory
 from launch.substitutions import LaunchConfiguration
 
 urdf_file_name = 'anymal.urdf'
+sdf_file_name = 'anymal.sdf'
 package_name = 'anymal'
 robot_name_in_model = 'anymal'
 
-def loadModel():
+def loadModel(file_name):
     urdf = os.path.join(
         get_package_share_directory(package_name),
         'urdf',
-        urdf_file_name,
+        file_name,
     )
 
     with open(urdf, 'r') as infp:
@@ -40,7 +41,7 @@ def generate_launch_description():
 
 
     # Nodes
-    urdf, robot = loadModel()
+    urdf, robot = loadModel(urdf_file_name)
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -80,11 +81,12 @@ def generate_launch_description():
 
 
     # GAZEBO
+    sdf, _ = loadModel(sdf_file_name)
     spawn_node = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=["-topic", "/robot_description", 
-                    "-entity", robot_name_in_model,
+        arguments=["-file", sdf,
+                   "-entity", robot_name_in_model,
                     "-x", '0.0',
                     "-y", '0.0',
                     "-z", '0.05',
